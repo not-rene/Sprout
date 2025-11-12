@@ -101,23 +101,34 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 }
 
 class AuthScreen extends StatelessWidget {
-  // Authentication screen offering sign in or create account actions.
   const AuthScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Center the whole body and center the column contents.
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign in or Create account'),
-        centerTitle: true, // center the AppBar title
-      ),
-      body: Center(
+      appBar: AppBar(title: const SizedBox.shrink()),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisSize: MainAxisSize.min, // shrink to content
-          mainAxisAlignment: MainAxisAlignment.center, // center vertically
-          crossAxisAlignment: CrossAxisAlignment.center, // center horizontally
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Put an image between the AppBar/title and the buttons.
+            // By default this uses a network image so you don't need to add
+            // an asset file. If you prefer a bundled asset, see the
+            // instructions below (pubspec.yaml) and replace Image.network
+            // with Image.asset('assets/images/welcome.png').
+            SizedBox(
+              width: double.infinity,
+              child: Image.asset(
+                'assets/images/slack.png',
+                height: 180,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 16),
+
             ElevatedButton(
               onPressed: () {
                 // Mock sign in -> direct to home. Replace with real sign-in flow.
@@ -148,14 +159,27 @@ class AgeInputScreen extends StatefulWidget {
   State<AgeInputScreen> createState() => _AgeInputScreenState();
 }
 
-class _AgeInputScreenState extends State<AgeInputScreen> {
+class _AgeInputScreenState extends State<AgeInputScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   String? _errorText;
+  late final AnimationController _dropCtrl;
+  late final Animation<Offset> _dropAnim;
 
   @override
   void dispose() {
+    _dropCtrl.dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _dropCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _dropAnim = Tween<Offset>(begin: const Offset(0, -0.25), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _dropCtrl, curve: Curves.easeOut));
+    // Start the drop animation when the screen appears.
+    _dropCtrl.forward();
   }
 
   // Validate the input is a positive integer and return parsed value or null.
@@ -204,34 +228,97 @@ class _AgeInputScreenState extends State<AgeInputScreen> {
   Widget build(BuildContext context) {
     // Simple UI: prompt, text field and a confirm button.
     return Scaffold(
-      appBar: AppBar(title: const Text('I am...')),
+      appBar: AppBar(title: const SizedBox.shrink()),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Enter your age so we can personalize the experience.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _controller,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'I am...',
-                hintText: 'e.g. 12',
-                errorText: _errorText,
+            const SizedBox(height: 8),
+
+            // Drop-down white box with black border and rounded corners.
+            SlideTransition(
+              position: _dropAnim,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black, width: 2),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text('Age', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _controller,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: 'your age',
+                        hintStyle: TextStyle(color: Colors.grey[500]),
+                        errorText: _errorText,
+                        prefixIcon: const Icon(Icons.cake, color: Colors.black87),
+                        suffixIcon: _controller.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, color: Colors.black54),
+                                onPressed: () => setState(() => _controller.clear()),
+                              )
+                            : null,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      ),
+                      onChanged: (_) {
+                        if (_errorText != null) setState(() => _errorText = null);
+                        setState(() {}); // update suffixIcon visibility
+                      },
+                      onSubmitted: (_) => _confirmAgeAndContinue(),
+                    ),
+                  ],
+                ),
               ),
-              onChanged: (_) {
-                if (_errorText != null) setState(() => _errorText = null);
-              },
-              onSubmitted: (_) => _confirmAgeAndContinue(),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _confirmAgeAndContinue,
-              child: const Text('Confirm'),
+
+            const SizedBox(height: 18),
+
+            // Action buttons: green Confirm (left) and red Cancel (right) with sharp rectangular shapes.
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: _confirmAgeAndContinue,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Text('Confirm', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: () {
+                    // Go back to auth screen if user cancels.
+                    Navigator.of(context).pushReplacementNamed('/auth');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Text('Cancel', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -265,7 +352,7 @@ class _CharacterCustomizationScreenState extends State<CharacterCustomizationScr
   Widget build(BuildContext context) {
     // Build a simple customization UI with preview, hair choices and color swatches.
     return Scaffold(
-      appBar: AppBar(title: const Text('Customize your character')),
+      appBar: AppBar(title: const SizedBox.shrink()),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -325,14 +412,12 @@ class _CharacterCustomizationScreenState extends State<CharacterCustomizationScr
 }
 
 class HomeScreen extends StatelessWidget {
-  // Main app home screen after authentication/customization.
   const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sprout Home'),
-        centerTitle: true, // center the AppBar title
+        title: const SizedBox.shrink(),
         actions: [
           // quick settings menu to change theme; persists choice
           PopupMenuButton<ThemeMode>(
@@ -358,3 +443,12 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+// OLD (deprecated)
+final bg = Colors.green.withOpacity(0.6);
+
+// Option A - use withAlpha (simple and exact)
+final bg = Colors.green.withAlpha((0.6 * 255).round());
+
+// Option B - use Color.fromRGBO with explicit opacity
+final bg = Color.fromRGBO(76, 175, 80, 0.6); // r,g,b from the color you used
