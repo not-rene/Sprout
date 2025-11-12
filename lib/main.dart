@@ -98,6 +98,21 @@ class AuthScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Put an image between the AppBar/title and the buttons.
+            // By default this uses a network image so you don't need to add
+            // an asset file. If you prefer a bundled asset, see the
+            // instructions below (pubspec.yaml) and replace Image.network
+            // with Image.asset('assets/images/welcome.png').
+            SizedBox(
+              width: double.infinity,
+              child: Image.asset(
+                'assets/images/slack.png',
+                height: 180,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(height: 16),
+
             ElevatedButton(
               onPressed: () {
                 // Mock sign in -> direct to home. Replace with real sign-in flow.
@@ -316,3 +331,4 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+```

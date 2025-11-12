@@ -91,3 +91,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter:
+  assets:
+  - https://files.slack.com/files-pri/T04CVF2F8-F09F4P5LS68/img_9460.png
+  
