@@ -106,12 +106,17 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Minimal mock auth UI. Replace with real auth logic later.
+    // Center the whole body and center the column contents.
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign in or Create account')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      appBar: AppBar(
+        title: const Text('Sign in or Create account'),
+        centerTitle: true, // center the AppBar title
+      ),
+      body: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min, // shrink to content
+          mainAxisAlignment: MainAxisAlignment.center, // center vertically
+          crossAxisAlignment: CrossAxisAlignment.center, // center horizontally
           children: [
             ElevatedButton(
               onPressed: () {
@@ -327,6 +332,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sprout Home'),
+        centerTitle: true, // center the AppBar title
         actions: [
           // quick settings menu to change theme; persists choice
           PopupMenuButton<ThemeMode>(
@@ -343,7 +349,12 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(child: Text('Welcome to Sprout!')),
+      body: const Center(
+        child: Text(
+          'Welcome to Sprout!',
+          textAlign: TextAlign.center, // ensure multiline centering
+        ),
+      ),
     );
   }
 }
