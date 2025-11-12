@@ -1,36 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:sprout/services/user_storage.dart'; // add this import
+import 'package:sprout/services/user_storage.dart';
 
-void main() {
-  // Entry point: run the app by instantiating (creating a new instance) 
-  // top level widget (main app class :p)
+// global notifier so any widget can update theme
+final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.system);
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Load saved theme (defaults to system if none)
+  final saved = await UserStorage.loadThemeMode();
+  themeModeNotifier.value = saved ?? ThemeMode.system;
+
   runApp(const SproutApp());
 }
 
 class SproutApp extends StatelessWidget {
-  // Root app widget (first thing flutter runs, also that widget 
-  //"SproutApp") Uses a const constructor (marks as unchanging 4 optimization) and provides routing.
-  // WHICH means lets lets you define and jump between named pages easy peasy
   const SproutApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // MaterialApp (Starter kit type thing. Handles colors, typography, icons, button styles, app bars, cards, blah blah)
-    // supplies Material theming, navigation (lets you move between pages easily), and route table (kinda like a menu of screens
-    //that your app knows about)
-    return MaterialApp(
-      title: 'Sprout',
-      theme: ThemeData(primarySwatch: Colors.green),
-      initialRoute: '/',
-      routes: {
-        // Routes (map of pages, each name points to a function that creates/builds the screen you wanna show)
-        // map names to builder functions (returns the widget to that screen)
-        // returning the target screen. All routes are stored together in MaterialApp like a dictionary. 
-        '/': (_) => const SplashScreen(),
-        '/auth': (_) => const AuthScreen(),
-        '/age': (_) => const AgeInputScreen(), // NEW: Age input before customization
-        '/home': (_) => const HomeScreen(),
-        '/customize': (_) => const CharacterCustomizationScreen(),
+    // Rebuild MaterialApp whenever themeModeNotifier changes
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeModeNotifier,
+      builder: (context, mode, _) {
+        return MaterialApp(
+          title: 'Sprout',
+          // Use ThemeData constructor for primarySwatch (light) and
+          // update dark theme's primary color via colorScheme/primaryColor.
+          theme: ThemeData(primarySwatch: Colors.green),
+          darkTheme: ThemeData.dark().copyWith(
+            primaryColor: Colors.green,
+            colorScheme: ThemeData.dark().colorScheme.copyWith(primary: Colors.green),
+          ),
+          themeMode: mode, // uses system until user changes it
+          initialRoute: '/',
+          routes: {
+            // Routes (map of pages, each name points to a function that creates/builds the screen you wanna show)
+            // map names to builder functions (returns the widget to that screen)
+            // returning the target screen. All routes are stored together in MaterialApp like a dictionary. 
+            '/': (_) => const SplashScreen(),
+            '/auth': (_) => const AuthScreen(),
+            '/age': (_) => const AgeInputScreen(), // NEW: Age input before customization
+            '/home': (_) => const HomeScreen(),
+            '/customize': (_) => const CharacterCustomizationScreen(),
+          },
+        );
       },
     );
   }
@@ -74,10 +88,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     // Build the splash UI: a centered, scaling FlutterLogo.
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.green,
       body: Center(
         child: ScaleTransition(
           scale: _scale,
+  
           child: const FlutterLogo(size: 140),
         ),
       ),
@@ -324,9 +339,25 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    // Simple placeholder home UI. Expand with your app features.
     return Scaffold(
-      appBar: AppBar(title: const Text('Sprout Home')),
+      appBar: AppBar(
+        title: const Text('Sprout Home'),
+        actions: [
+          // quick settings menu to change theme; persists choice
+          PopupMenuButton<ThemeMode>(
+            onSelected: (mode) async {
+              themeModeNotifier.value = mode;
+              await UserStorage.saveThemeMode(mode);
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: ThemeMode.system, child: Text('Use system theme')),
+              PopupMenuItem(value: ThemeMode.light, child: Text('Light theme')),
+              PopupMenuItem(value: ThemeMode.dark, child: Text('Dark theme')),
+            ],
+            icon: const Icon(Icons.color_lens),
+          ),
+        ],
+      ),
       body: const Center(child: Text('Welcome to Sprout!')),
     );
   }
