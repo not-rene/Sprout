@@ -102,36 +102,30 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 }
 
 class AuthScreen extends StatelessWidget {
-  // Authentication screen offering sign in or create account actions.
   const AuthScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Minimal mock auth UI. Replace with real auth logic later.
     return Scaffold(
-      appBar: AppBar(title: const SizedBox.shrink()),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      appBar: AppBar(
+        title: const Text('Sign in or Create account'),
+        centerTitle: true,
+      ),
+      body: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Put an image between the AppBar/title and the buttons.
-            // By default this uses a network image so you don't need to add
-            // an asset file. If you prefer a bundled asset, see the
-            // instructions below (pubspec.yaml) and replace Image.network
-            // with Image.asset('assets/images/welcome.png').
-            SizedBox(
-              width: double.infinity,
-              child: Image.asset(
-                'assets/images/slack.png',
-                height: 180,
-                fit: BoxFit.contain,
-              ),
+            // Add the image here
+            Image.asset(
+              'assets/images/sprout.png',
+              width: 150,
+              height: 150,
             ),
-            const SizedBox(height: 16),
-
+            const SizedBox(height: 30),
             ElevatedButton(
               onPressed: () {
-                // Mock sign in -> direct to home. Replace with real sign-in flow.
                 Navigator.of(context).pushReplacementNamed('/home');
               },
               child: const Text('Sign in (mock)'),
@@ -139,7 +133,6 @@ class AuthScreen extends StatelessWidget {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () {
-                // New account -> now go to the age input screen first
                 Navigator.of(context).pushReplacementNamed('/age');
               },
               child: const Text('Create new account'),

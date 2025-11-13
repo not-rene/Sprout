@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:sprout/main.dart'; // import themeModeNotifier
+import 'package:sprout/services/user_storage.dart'; // import UserStorage
 import 'sidebar.dart';
 import 'profile_screen.dart';
 import 'lessons_screen.dart';
 import 'settings_screen.dart';
+import 'dart:developer' as logger;
 
 class HomeWrapper extends StatefulWidget {
   const HomeWrapper({super.key});
@@ -42,6 +45,35 @@ class _HomeWrapperState extends State<HomeWrapper> {
       ),
       appBar: AppBar(title: const SizedBox.shrink()),
       body: _getScreenWidget(),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const SizedBox.shrink(),
+        centerTitle: true,
+        actions: [
+          PopupMenuButton<ThemeMode>(
+            onSelected: (mode) async {
+              themeModeNotifier.value = mode;
+              await UserStorage.saveThemeMode(mode);
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: ThemeMode.system, child: Text('Use system theme')),
+              PopupMenuItem(value: ThemeMode.light, child: Text('Light theme')),
+              PopupMenuItem(value: ThemeMode.dark, child: Text('Dark theme')),
+            ],
+            icon: const Icon(Icons.color_lens),
+          ),
+        ],
+      ),
+      body: const Center(child: Text('Welcome to Sprout!')),
     );
   }
 }
