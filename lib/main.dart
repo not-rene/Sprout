@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sprout/services/user_storage.dart';
+import 'package:sprout/screens/home_wrapper.dart';
 
 // global notifier so any widget can update theme
 final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.system);
@@ -41,7 +42,7 @@ class SproutApp extends StatelessWidget {
             '/': (_) => const SplashScreen(),
             '/auth': (_) => const AuthScreen(),
             '/age': (_) => const AgeInputScreen(), // NEW: Age input before customization
-            '/home': (_) => const HomeScreen(),
+            '/home': (_) => const HomeWrapper(), // Main home with sidebar navigation
             '/customize': (_) => const CharacterCustomizationScreen(),
           },
         );
@@ -410,32 +411,5 @@ class _CharacterCustomizationScreenState extends State<CharacterCustomizationScr
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  // Main app home screen after authentication/customization.
-  const HomeScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const SizedBox.shrink(),
-        actions: [
-          // quick settings menu to change theme; persists choice
-          PopupMenuButton<ThemeMode>(
-            onSelected: (mode) async {
-              themeModeNotifier.value = mode;
-              await UserStorage.saveThemeMode(mode);
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: ThemeMode.system, child: Text('Use system theme')),
-              PopupMenuItem(value: ThemeMode.light, child: Text('Light theme')),
-              PopupMenuItem(value: ThemeMode.dark, child: Text('Dark theme')),
-            ],
-            icon: const Icon(Icons.color_lens),
-          ),
-        ],
-      ),
-      body: const Center(child: Text('Welcome to Sprout!')),
-    );
-  }
-}
+
 ```
