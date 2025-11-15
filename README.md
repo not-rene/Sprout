@@ -10,10 +10,11 @@ A minimal Flutter starter app. 🌱
 git clone https://github.com/not-rene/Sprout
 ```
 3. Change directory into the repository;
+
 UNIX: `cd Sprout`
 Windows ( through powershell ): `cd Sprout`
   
-4. Run `flutter pub get`
+5. Run `flutter pub get`
 
 6. Run `flutter run` to start the app
 
