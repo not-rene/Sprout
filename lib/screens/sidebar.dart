@@ -30,6 +30,15 @@ class SideBar extends StatelessWidget {
             ),
           ),
           _buildNavItem(
+            icon: Icons.home,
+            label: 'Home',
+            routeName: 'home',
+            onTap: () {
+              onNavigate('home');
+              Navigator.pop(context);
+            },
+          ),
+          _buildNavItem(
             icon: Icons.person,
             label: 'Profile',
             routeName: 'profile',
@@ -44,6 +53,15 @@ class SideBar extends StatelessWidget {
             routeName: 'lessons',
             onTap: () {
               onNavigate('lessons');
+              Navigator.pop(context);
+            },
+          ),
+          _buildNavItem(
+            icon: Icons.emoji_events,
+            label: 'Leaderboard',
+            routeName: 'leaderboard',
+            onTap: () {
+              onNavigate('leaderboard');
               Navigator.pop(context);
             },
           ),

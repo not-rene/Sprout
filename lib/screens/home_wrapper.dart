@@ -5,6 +5,8 @@ import 'sidebar.dart';
 import 'profile_screen.dart';
 import 'lessons_screen.dart';
 import 'settings_screen.dart';
+import 'leadership_home_screen.dart';
+import 'leaderboard_screen.dart';
 import 'dart:developer' as logger;
 
 class HomeWrapper extends StatefulWidget {
@@ -25,6 +27,10 @@ class _HomeWrapperState extends State<HomeWrapper> {
 
   Widget _getScreenWidget() {
     switch (_currentScreen) {
+      case 'home':
+        return const LeadershipHomeScreen();
+      case 'leaderboard':
+        return const LeaderboardScreen();
       case 'profile':
         return const ProfileScreen();
       case 'lessons':
@@ -32,7 +38,7 @@ class _HomeWrapperState extends State<HomeWrapper> {
       case 'settings':
         return const SettingsScreen();
       default:
-        return const ProfileScreen();
+        return const LeadershipHomeScreen();
     }
   }
 
